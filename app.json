@@ -7,6 +7,13 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/0c1aec5a-d0f0-4216-a365-4a36607778f7",
+      "enabled": true,
+      "fallbackToCacheTimeout": 0,
+      "checkAutomatically": "ON_LOAD"
+    },
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -29,8 +36,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": ""
+        "projectId": "0c1aec5a-d0f0-4216-a365-4a36607778f7"
       }
-    }
+    },
+    "owner": "utkarsh7477"
   }
 }
