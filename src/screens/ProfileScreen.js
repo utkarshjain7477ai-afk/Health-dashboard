@@ -38,9 +38,9 @@ export default function ProfileScreen({ navigation }) {
   return (
     <View style={[s.root, { paddingTop: insets.top }]}>
       <View style={s.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}><Text style={s.cancel}>Cancel</Text></TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={s.headerBtn} accessibilityLabel="Cancel" accessibilityRole="button"><Text style={s.cancel}>Cancel</Text></TouchableOpacity>
         <Text style={s.title}>Profile</Text>
-        <TouchableOpacity onPress={save}><Text style={s.saveBtn}>Save</Text></TouchableOpacity>
+        <TouchableOpacity onPress={save} style={s.headerBtn} accessibilityLabel="Save profile" accessibilityRole="button"><Text style={s.saveBtn}>Save</Text></TouchableOpacity>
       </View>
       <ScrollView style={s.body} contentContainerStyle={{ padding: 20 }}>
         <Text style={s.label}>Name</Text>
@@ -52,7 +52,7 @@ export default function ProfileScreen({ navigation }) {
         <Text style={s.label}>Blood Group</Text>
         <View style={s.chips}>
           {BLOOD_GROUPS.map(b => (
-            <TouchableOpacity key={b} style={[s.chip, blood === b && s.chipActive]} onPress={() => setBlood(b)}>
+            <TouchableOpacity key={b} style={[s.chip, blood === b && s.chipActive]} onPress={() => setBlood(b)} accessibilityLabel={`Blood group ${b}`} accessibilityRole="button" accessibilityState={{ selected: blood === b }}>
               <Text style={[s.chipText, blood === b && s.chipTextActive]}>{b}</Text>
             </TouchableOpacity>
           ))}
@@ -64,7 +64,7 @@ export default function ProfileScreen({ navigation }) {
         <Text style={s.label}>Conditions</Text>
         <View style={s.chips}>
           {COMORBIDITIES.map(c => (
-            <TouchableOpacity key={c} style={[s.chip, comorbid.includes(c) && s.chipActive]} onPress={() => toggleComorbid(c)}>
+            <TouchableOpacity key={c} style={[s.chip, comorbid.includes(c) && s.chipActive]} onPress={() => toggleComorbid(c)} accessibilityLabel={c} accessibilityRole="checkbox" accessibilityState={{ checked: comorbid.includes(c) }}>
               <Text style={[s.chipText, comorbid.includes(c) && s.chipTextActive]}>{c}</Text>
             </TouchableOpacity>
           ))}
@@ -76,7 +76,8 @@ export default function ProfileScreen({ navigation }) {
 
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.navy },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.1)' },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.1)' },
+  headerBtn: { minHeight: 44, minWidth: 60, justifyContent: 'center' },
   title: { fontSize: 17, fontWeight: '700', color: '#fff' },
   cancel: { fontSize: 15, color: 'rgba(255,255,255,0.6)' },
   saveBtn: { fontSize: 15, fontWeight: '700', color: C.accent },

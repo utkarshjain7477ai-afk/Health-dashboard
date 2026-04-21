@@ -23,9 +23,9 @@ export default function AddMemberScreen({ navigation }) {
   return (
     <View style={[s.root, { paddingTop: insets.top }]}>
       <View style={s.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}><Text style={s.cancel}>Cancel</Text></TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={s.headerBtn} accessibilityLabel="Cancel" accessibilityRole="button"><Text style={s.cancel}>Cancel</Text></TouchableOpacity>
         <Text style={s.title}>Add Member</Text>
-        <TouchableOpacity onPress={save}><Text style={s.saveBtn}>Save</Text></TouchableOpacity>
+        <TouchableOpacity onPress={save} style={s.headerBtn} accessibilityLabel="Save member" accessibilityRole="button"><Text style={s.saveBtn}>Save</Text></TouchableOpacity>
       </View>
       <ScrollView style={s.body} contentContainerStyle={{ padding: 20 }}>
         <Text style={s.label}>Name</Text>
@@ -37,7 +37,7 @@ export default function AddMemberScreen({ navigation }) {
         <Text style={s.label}>Relation</Text>
         <View style={s.chips}>
           {RELATIONS.map(r => (
-            <TouchableOpacity key={r} style={[s.chip, relation === r && s.chipActive]} onPress={() => setRelation(r)}>
+            <TouchableOpacity key={r} style={[s.chip, relation === r && s.chipActive]} onPress={() => setRelation(r)} accessibilityLabel={r} accessibilityRole="button" accessibilityState={{ selected: relation === r }}>
               <Text style={[s.chipText, relation === r && s.chipTextActive]}>{r}</Text>
             </TouchableOpacity>
           ))}
@@ -49,7 +49,8 @@ export default function AddMemberScreen({ navigation }) {
 
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.navy },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.1)' },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.1)' },
+  headerBtn: { minHeight: 44, minWidth: 60, justifyContent: 'center' },
   title: { fontSize: 17, fontWeight: '700', color: '#fff' },
   cancel: { fontSize: 15, color: 'rgba(255,255,255,0.6)' },
   saveBtn: { fontSize: 15, fontWeight: '700', color: C.accent },

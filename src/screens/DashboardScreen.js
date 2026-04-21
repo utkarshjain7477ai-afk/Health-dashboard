@@ -5,6 +5,7 @@ import {
   StatusBar, Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { fetchRecords } from '../services/api';
 import { getProfile, getFamily, getHistory, getLang, setLang } from '../services/storage';
 
@@ -135,7 +136,13 @@ export default function DashboardScreen({ navigation }) {
       <View style={s.hero}>
         <View style={s.heroLang}>
           {['en','hi'].map(l => (
-            <TouchableOpacity key={l} style={[s.langBtn, lang === l && s.langActive]} onPress={() => toggleLang(l)}>
+            <TouchableOpacity
+              key={l}
+              style={[s.langBtn, lang === l && s.langActive]}
+              onPress={() => toggleLang(l)}
+              accessibilityLabel={`Switch to ${l === 'en' ? 'English' : 'Hindi'}`}
+              accessibilityRole="button"
+            >
               <Text style={[s.langText, lang === l && s.langTextActive]}>{l === 'en' ? 'EN' : 'हि'}</Text>
             </TouchableOpacity>
           ))}
@@ -145,10 +152,18 @@ export default function DashboardScreen({ navigation }) {
           {heroName ? `${t('hello')}, ${heroName.split(' ')[0]}!` : `${t('hello')}!`}
         </Text>
         <View style={s.profilePill}>
-          <Text style={s.pillItem}>🩸 {profile.px_blood_group || '—'}</Text>
+          <Ionicons name="water-outline" size={13} color="rgba(255,255,255,0.75)" />
+          <Text style={s.pillItem}>{profile.px_blood_group || '—'}</Text>
           <View style={s.pillDiv} />
-          <Text style={s.pillItem}>🌿 {profile.px_allergies || '—'}</Text>
-          <TouchableOpacity style={s.pillEdit} onPress={() => navigation.navigate('Profile')}>
+          <Ionicons name="leaf-outline" size={13} color="rgba(255,255,255,0.75)" />
+          <Text style={s.pillItem}>{profile.px_allergies || '—'}</Text>
+          <TouchableOpacity
+            style={s.pillEdit}
+            hitSlop={{ top: 10, bottom: 10, left: 8, right: 8 }}
+            onPress={() => navigation.navigate('Profile')}
+            accessibilityLabel="Edit profile"
+            accessibilityRole="button"
+          >
             <Text style={s.pillEditText}>{t('edit')}</Text>
           </TouchableOpacity>
         </View>
@@ -164,21 +179,32 @@ export default function DashboardScreen({ navigation }) {
         <View style={s.section}>
           <Text style={s.sectionLabel}>{t('family')}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.chipsRow}>
-            <TouchableOpacity style={[s.chip, selectedIdx === -1 && s.chipActive]} onPress={() => handleSelectPerson(-1)}>
+            <TouchableOpacity
+              style={[s.chip, selectedIdx === -1 && s.chipActive]}
+              onPress={() => handleSelectPerson(-1)}
+              accessibilityLabel={`Select ${profile.px_name || 'yourself'}`}
+              accessibilityRole="button"
+            >
               <View style={[s.avatar, selectedIdx === -1 && s.avatarActive]}>
-                <Text style={s.avatarText}>{(profile.px_name || t('you')).charAt(0).toUpperCase()}</Text>
+                <Text style={[s.avatarText, selectedIdx === -1 && { color: '#fff' }]}>{(profile.px_name || t('you')).charAt(0).toUpperCase()}</Text>
               </View>
               <Text style={[s.chipName, selectedIdx === -1 && s.chipNameActive]}>{(profile.px_name || t('you')).split(' ')[0]}</Text>
             </TouchableOpacity>
             {family.map((m, i) => (
-              <TouchableOpacity key={i} style={[s.chip, selectedIdx === i && s.chipActive]} onPress={() => handleSelectPerson(i)}>
+              <TouchableOpacity
+                key={i}
+                style={[s.chip, selectedIdx === i && s.chipActive]}
+                onPress={() => handleSelectPerson(i)}
+                accessibilityLabel={`Select ${m.name || 'family member'}`}
+                accessibilityRole="button"
+              >
                 <View style={[s.avatar, selectedIdx === i && s.avatarActive]}>
-                  <Text style={s.avatarText}>{(m.name || '?').charAt(0).toUpperCase()}</Text>
+                  <Text style={[s.avatarText, selectedIdx === i && { color: '#fff' }]}>{(m.name || '?').charAt(0).toUpperCase()}</Text>
                 </View>
                 <Text style={[s.chipName, selectedIdx === i && s.chipNameActive]}>{(m.name || '').split(' ')[0]}</Text>
               </TouchableOpacity>
             ))}
-            <TouchableOpacity style={s.chip} onPress={() => navigation.navigate('AddMember')}>
+            <TouchableOpacity style={s.chip} onPress={() => navigation.navigate('AddMember')} accessibilityLabel="Add family member" accessibilityRole="button">
               <View style={[s.avatar, { backgroundColor: 'rgba(37,99,235,0.1)', borderColor: C.accent, borderWidth: 1.5 }]}>
                 <Text style={[s.avatarText, { color: C.accent, fontSize: 22 }]}>+</Text>
               </View>
@@ -194,7 +220,13 @@ export default function DashboardScreen({ navigation }) {
           {/* Tabs */}
           <View style={s.tabs}>
             {[['all', t('tabAll')], ['prescription', t('tabRx')], ['report', t('tabRpt')]].map(([tab, label]) => (
-              <TouchableOpacity key={tab} style={[s.tab, activeTab === tab && s.tabActive]} onPress={() => setActiveTab(tab)}>
+              <TouchableOpacity
+                key={tab}
+                style={[s.tab, activeTab === tab && s.tabActive]}
+                onPress={() => setActiveTab(tab)}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: activeTab === tab }}
+              >
                 <Text style={[s.tabText, activeTab === tab && s.tabTextActive]}>{label}</Text>
               </TouchableOpacity>
             ))}
@@ -214,7 +246,7 @@ export default function DashboardScreen({ navigation }) {
             <ActivityIndicator color={C.accent} style={{ marginTop: 24 }} />
           ) : filtered.length === 0 ? (
             <View style={s.empty}>
-              <Text style={s.emptyIcon}>📋</Text>
+              <Ionicons name="document-text-outline" size={40} color={C.muted} style={{ marginBottom: 10 }} />
               <Text style={s.emptyTitle}>{t('noRec')}</Text>
               <Text style={s.emptySub}>{t('noRecSub')}</Text>
             </View>
@@ -222,7 +254,11 @@ export default function DashboardScreen({ navigation }) {
             filtered.map((r, idx) => {
               const isRpt = r.type === 'report';
               return (
-                <TouchableOpacity key={r.id || idx} style={[s.recCard, isRpt ? s.recRpt : s.recRx]}
+                <TouchableOpacity
+                  key={r.id || idx}
+                  style={[s.recCard, isRpt ? s.recRpt : s.recRx]}
+                  accessibilityLabel={`${isRpt ? 'Lab report' : 'Prescription'} from ${isRpt ? (r.labName || 'Lab') : (r.doctorName || 'Doctor')}`}
+                  accessibilityRole="button"
                   onPress={() => navigation.navigate('Record', { pid: r.id, phone: selectedIdx === -1 ? profile.px_phone : (family[selectedIdx]?.phone || '') })}>
                   <View style={s.recTop}>
                     <Text style={s.recDoctor} numberOfLines={1}>{isRpt ? (r.labName || 'Lab Report') : (r.doctorName || 'Doctor')}</Text>
@@ -236,7 +272,7 @@ export default function DashboardScreen({ navigation }) {
                   {(isRpt ? r.findings : r.diagnosis) ? (
                     <Text style={s.recDiag} numberOfLines={2}>{isRpt ? r.findings : r.diagnosis}</Text>
                   ) : null}
-                  <Text style={s.recChevron}>›</Text>
+                  <Ionicons name="chevron-forward" size={18} color={C.muted} style={s.recChevron} />
                 </TouchableOpacity>
               );
             })
@@ -272,7 +308,7 @@ const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.navyDeep },
   hero: { backgroundColor: C.navyDeep, paddingHorizontal: 22, paddingBottom: 28, paddingTop: 8, position: 'relative' },
   heroLang: { position: 'absolute', top: 8, right: 20, flexDirection: 'row', gap: 6, zIndex: 10 },
-  langBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 18, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.3)', backgroundColor: 'transparent' },
+  langBtn: { paddingHorizontal: 12, paddingVertical: 10, borderRadius: 20, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.3)', backgroundColor: 'transparent', minHeight: 44, justifyContent: 'center', alignItems: 'center' },
   langActive: { backgroundColor: 'rgba(255,255,255,0.2)', borderColor: 'rgba(255,255,255,0.7)' },
   langText: { fontSize: 12, fontWeight: '700', color: 'rgba(255,255,255,0.6)' },
   langTextActive: { color: '#fff' },
@@ -323,7 +359,7 @@ const s = StyleSheet.create({
   pillRptText: { color: C.green },
   recMeta: { fontSize: 12, color: C.muted, marginBottom: 4 },
   recDiag: { fontSize: 13, color: C.textSec },
-  recChevron: { position: 'absolute', right: 14, top: '50%', fontSize: 22, color: C.muted },
+  recChevron: { position: 'absolute', right: 12, top: '35%' },
 
   codeCard: { backgroundColor: C.card, borderRadius: 16, padding: 18, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
   codeTitle: { fontSize: 15, fontWeight: '700', color: C.text, marginBottom: 3 },
