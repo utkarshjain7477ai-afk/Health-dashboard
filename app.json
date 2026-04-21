@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "Health Dashboard",
+    "name": "Health Dash",
     "slug": "docurx-patient",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": false,
-    "runtimeVersion": "1.0.0",
+    "runtimeVersion": "2.0.0",
     "updates": {
       "url": "https://u.expo.dev/0c1aec5a-d0f0-4216-a365-4a36607778f7",
       "enabled": true,
