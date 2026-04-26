@@ -31,7 +31,12 @@ export default function ProfileScreen({ navigation }) {
   };
 
   const save = async () => {
-    await saveProfile({ px_name: name, px_phone: phone ? '+91' + phone.replace(/^\+91/, '') : '', px_blood_group: blood, px_allergies: allergy, px_comorbidities: comorbid });
+    const digits = phone.replace(/\D/g, '');
+    if (digits && digits.length !== 10) {
+      Alert.alert('Invalid Phone', 'Please enter a 10-digit mobile number.');
+      return;
+    }
+    await saveProfile({ px_name: name, px_phone: digits ? '+91' + digits : '', px_blood_group: blood, px_allergies: allergy, px_comorbidities: comorbid });
     navigation.goBack();
   };
 

@@ -67,13 +67,17 @@ export default function DashboardScreen({ navigation }) {
 
   const loadRecords = useCallback(async (idx, p, f, isRefresh = false) => {
     if (isRefresh) setRefreshing(true); else setLoading(true);
+    const requestedIdx = idx;
     try {
-      let phone = '';
-      if (idx === -1) phone = p?.px_phone || profile.px_phone;
-      else phone = (f ?? family)[idx]?.phone || '';
+      const phone = idx === -1
+        ? (p?.px_phone || '')
+        : ((f ?? family)[idx]?.phone || '');
 
       let serverRecs = [];
       if (phone) serverRecs = await fetchRecords(phone);
+
+      // If the user switched person mid-flight, drop this response.
+      if (requestedIdx !== selectedIdxRef.current) return;
 
       if (idx === -1) {
         const local = await getHistory();
@@ -83,24 +87,28 @@ export default function DashboardScreen({ navigation }) {
       } else {
         setRecords(serverRecs);
       }
-    } catch {
-      setRecords([]);
+    } catch (err) {
+      // Don't wipe existing records on a transient network blip — surface error UX instead.
+      console.warn('loadRecords failed', err);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [profile, family]);
+  }, [family]);
 
-  useEffect(() => {
-    loadInitial().then(({ p, f }) => loadRecords(-1, p, f));
-  }, []);
+  // Track the latest selected index so in-flight responses for an old person are dropped.
+  const selectedIdxRef = React.useRef(selectedIdx);
+  useEffect(() => { selectedIdxRef.current = selectedIdx; }, [selectedIdx]);
 
+  // Single focus-driven loader (focus fires on mount too — no separate mount effect needed).
   useEffect(() => {
-    const unsub = navigation.addListener('focus', () => {
-      loadInitial().then(({ p, f }) => loadRecords(selectedIdx, p, f));
-    });
+    const run = () => {
+      loadInitial().then(({ p, f }) => loadRecords(selectedIdxRef.current, p, f));
+    };
+    run();
+    const unsub = navigation.addListener('focus', run);
     return unsub;
-  }, [navigation, selectedIdx]);
+  }, [navigation, loadInitial, loadRecords]);
 
   const handleSelectPerson = (idx) => {
     setSelectedIdx(idx);
@@ -121,7 +129,11 @@ export default function DashboardScreen({ navigation }) {
       if (activeTab !== 'all' && (r.type || 'prescription') !== activeTab) return false;
       if (!search) return true;
       const q = search.toLowerCase();
-      return (r.doctorName + r.doctorDept + r.diagnosis + r.city + r.dateDisplay + r.findings + r.labName + r.reportType || '').toLowerCase().includes(q);
+      const hay = [r.doctorName, r.doctorDept, r.diagnosis, r.city, r.dateDisplay, r.findings, r.labName, r.reportType]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+      return hay.includes(q);
     });
 
   const heroName = selectedIdx === -1
