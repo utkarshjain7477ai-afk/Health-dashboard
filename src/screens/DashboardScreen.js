@@ -71,7 +71,7 @@ export default function DashboardScreen({ navigation }) {
     try {
       const phone = idx === -1
         ? (p?.px_phone || '')
-        : ((f ?? family)[idx]?.phone || '');
+        : ((f ?? familyRef.current)[idx]?.phone || '');
 
       let serverRecs = [];
       if (phone) serverRecs = await fetchRecords(phone);
@@ -94,21 +94,28 @@ export default function DashboardScreen({ navigation }) {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [family]);
+  }, []);
 
-  // Track the latest selected index so in-flight responses for an old person are dropped.
+  // Refs so callbacks stay stable and don't trigger re-runs of the focus effect.
   const selectedIdxRef = React.useRef(selectedIdx);
+  const familyRef = React.useRef(family);
   useEffect(() => { selectedIdxRef.current = selectedIdx; }, [selectedIdx]);
+  useEffect(() => { familyRef.current = family; }, [family]);
 
-  // Single focus-driven loader (focus fires on mount too — no separate mount effect needed).
+  // Mount: load profile + records once.
   useEffect(() => {
-    const run = () => {
-      loadInitial().then(({ p, f }) => loadRecords(selectedIdxRef.current, p, f));
-    };
-    run();
-    const unsub = navigation.addListener('focus', run);
+    loadInitial().then(({ p, f }) => loadRecords(selectedIdxRef.current, p, f));
+  }, [loadInitial, loadRecords]);
+
+  // Focus: only refresh records (profile doesn't change between navigations).
+  const focusFiredRef = React.useRef(false);
+  useEffect(() => {
+    const unsub = navigation.addListener('focus', () => {
+      if (!focusFiredRef.current) { focusFiredRef.current = true; return; }
+      loadRecords(selectedIdxRef.current, null, null);
+    });
     return unsub;
-  }, [navigation, loadInitial, loadRecords]);
+  }, [navigation, loadRecords]);
 
   const handleSelectPerson = (idx) => {
     setSelectedIdx(idx);
@@ -159,6 +166,10 @@ export default function DashboardScreen({ navigation }) {
             </TouchableOpacity>
           ))}
         </View>
+        <View style={s.brandRow}>
+          <Text style={s.brandName}>Health Dash</Text>
+          <Text style={s.brandVer}>v2.1</Text>
+        </View>
         <Text style={s.eyebrow}>{t('eyebrow')}</Text>
         <Text style={s.heroName} numberOfLines={1}>
           {heroName ? `${t('hello')}, ${heroName.split(' ')[0]}!` : `${t('hello')}!`}
@@ -183,7 +194,7 @@ export default function DashboardScreen({ navigation }) {
 
       <ScrollView
         style={s.body}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => loadRecords(selectedIdx, null, null, true)} tintColor={C.accent} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => loadRecords(selectedIdxRef.current, null, null, true)} tintColor={C.accent} />}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
@@ -324,7 +335,10 @@ const s = StyleSheet.create({
   langActive: { backgroundColor: 'rgba(255,255,255,0.2)', borderColor: 'rgba(255,255,255,0.7)' },
   langText: { fontSize: 12, fontWeight: '700', color: 'rgba(255,255,255,0.6)' },
   langTextActive: { color: '#fff' },
-  eyebrow: { fontSize: 10, letterSpacing: 2.5, textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)', marginBottom: 8, fontWeight: '600', marginTop: 40 },
+  brandRow: { flexDirection: 'row', alignItems: 'baseline', gap: 6, marginTop: 8 },
+  brandName: { fontSize: 15, fontWeight: '700', color: 'rgba(255,255,255,0.9)', letterSpacing: 0.3 },
+  brandVer: { fontSize: 11, fontWeight: '600', color: C.accent, letterSpacing: 0.5 },
+  eyebrow: { fontSize: 10, letterSpacing: 2.5, textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)', marginBottom: 8, fontWeight: '600', marginTop: 14 },
   heroName: { fontSize: 34, fontWeight: '700', color: '#fff', marginBottom: 16 },
   profilePill: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.1)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10, gap: 10, alignSelf: 'flex-start' },
   pillItem: { fontSize: 13, color: 'rgba(255,255,255,0.85)', fontWeight: '500' },

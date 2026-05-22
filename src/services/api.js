@@ -1,5 +1,6 @@
 import axios from 'axios';
 import Constants from 'expo-constants';
+import { getAuthToken } from './storage';
 
 const BASE_URL =
   Constants?.expoConfig?.extra?.apiUrl ||
@@ -10,8 +11,18 @@ const client = axios.create({
   timeout: 15000,
 });
 
-export const fetchRecords = (phone) =>
-  client.get('/my-records', { params: { phone } }).then(r => r.data.records || []);
+export const sendOtp = (phone) =>
+  client.post('/api/otp/send', { phone }).then(r => r.data);
 
-export const PORTAL_URL = (pid, phone) =>
-  `${BASE_URL}/portal/${pid}${phone ? '?phone=' + encodeURIComponent(phone) : ''}`;
+export const verifyOtp = (phone, otp) =>
+  client.post('/api/otp/verify', { phone, otp }).then(r => r.data);
+
+export const fetchRecords = async (phone) => {
+  const token = await getAuthToken();
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  return client
+    .get('/my-records', { params: token ? {} : { phone }, headers })
+    .then(r => r.data.records || []);
+};
+
+export const PORTAL_URL = (pid) => `${BASE_URL}/portal/${pid}`;
