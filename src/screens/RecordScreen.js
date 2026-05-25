@@ -25,6 +25,20 @@ export default function RecordScreen({ route, navigation }) {
     );
   }
 
+  if (!pid) {
+    return (
+      <View style={[s.root, { alignItems: 'center', justifyContent: 'center', padding: 32 }]}>
+        <Text style={{ color: '#fff', fontSize: 16, textAlign: 'center', marginBottom: 20 }}>
+          Prescription not found. Please go back and try again.
+        </Text>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={[s.back, { position: 'relative', right: 0, bottom: 0 }]}>
+          <Ionicons name="chevron-back" size={18} color="rgba(255,255,255,0.9)" />
+          <Text style={s.backText}>Go Back</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   // Push the Bearer token + phone into the WebView's localStorage so the
   // server-rendered portal page can attach `Authorization: Bearer …` to
   // /upload-rx and /upload-report calls (the backend now requires it).

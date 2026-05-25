@@ -315,7 +315,7 @@ export default function DashboardScreen({ navigation }) {
               onChangeText={setCodeInput}
               autoCapitalize="none"
             />
-            <TouchableOpacity style={s.codeBtn} onPress={() => { if (codeInput.trim()) navigation.navigate('Record', { pid: codeInput.trim().toLowerCase(), phone: profile.px_phone }); }}>
+            <TouchableOpacity style={s.codeBtn} onPress={() => { if (codeInput.trim()) navigation.navigate('Record', { pid: codeInput.trim().toLowerCase(), phone: profile?.px_phone || '' }); }}>
               <Text style={s.codeBtnText}>{t('go')}</Text>
             </TouchableOpacity>
           </View>
