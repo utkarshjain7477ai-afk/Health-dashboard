@@ -107,11 +107,12 @@ export default function DashboardScreen({ navigation }) {
     loadInitial().then(({ p, f }) => loadRecords(selectedIdxRef.current, p, f));
   }, [loadInitial, loadRecords]);
 
-  // Focus: only refresh records (profile doesn't change between navigations).
   const focusFiredRef = React.useRef(false);
   useEffect(() => {
     const unsub = navigation.addListener('focus', () => {
       if (!focusFiredRef.current) { focusFiredRef.current = true; return; }
+      // Re-read profile so blood group / allergies update after ProfileScreen save.
+      getProfile().then(p => setProfile(p));
       loadRecords(selectedIdxRef.current, null, null);
     });
     return unsub;
