@@ -2,7 +2,7 @@ import axios from 'axios';
 import Constants from 'expo-constants';
 import { getAuthToken } from './storage';
 
-const BASE_URL =
+export const BASE_URL =
   Constants?.expoConfig?.extra?.apiUrl ||
   'https://prescriva-production.up.railway.app';
 

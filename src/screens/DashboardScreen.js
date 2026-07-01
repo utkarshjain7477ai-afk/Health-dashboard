@@ -168,8 +168,8 @@ export default function DashboardScreen({ navigation }) {
           ))}
         </View>
         <View style={s.brandRow}>
-          <Text style={s.brandName}>Health Dash</Text>
-          <Text style={s.brandVer}>v2.1</Text>
+          <Text style={s.brandName}>Kavox Care</Text>
+          <Text style={s.brandVer}>v1.0</Text>
         </View>
         <Text style={s.eyebrow}>{t('eyebrow')}</Text>
         <Text style={s.heroName} numberOfLines={1}>

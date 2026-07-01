@@ -3,19 +3,35 @@ import { View, StyleSheet, TouchableOpacity, Text, ActivityIndicator } from 'rea
 import { Ionicons } from '@expo/vector-icons';
 import { WebView } from 'react-native-webview';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { PORTAL_URL } from '../services/api';
+import { PORTAL_URL, BASE_URL } from '../services/api';
 import { getAuthToken } from '../services/storage';
 
 export default function RecordScreen({ route, navigation }) {
   const insets = useSafeAreaInsets();
   const { pid, phone } = route.params || {};
-  const url = PORTAL_URL(pid);
   const [token, setToken] = useState(null);
+  const [portalToken, setPortalToken] = useState('');
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    getAuthToken().then((t) => { setToken(t || ''); setReady(true); });
-  }, []);
+    const init = async () => {
+      const t = await getAuthToken();
+      setToken(t || '');
+      if (pid) {
+        try {
+          const resp = await fetch(`${BASE_URL}/patient-auth/${pid.toUpperCase()}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: phone || '' }),
+          });
+          const data = await resp.json();
+          setPortalToken(data.token || '');
+        } catch {}
+      }
+      setReady(true);
+    };
+    init();
+  }, [pid, phone]);
 
   if (!ready) {
     return (
@@ -39,9 +55,10 @@ export default function RecordScreen({ route, navigation }) {
     );
   }
 
-  // Push the Bearer token + phone into the WebView's localStorage so the
-  // server-rendered portal page can attach `Authorization: Bearer …` to
-  // /upload-rx and /upload-report calls (the backend now requires it).
+  const portalUrl = portalToken
+    ? `${BASE_URL}/portal/${pid.toUpperCase()}?token=${encodeURIComponent(portalToken)}${phone ? '&phone=' + encodeURIComponent(phone) : ''}`
+    : PORTAL_URL(pid);
+
   const injectBefore = `
     try {
       ${token ? `localStorage.setItem('px_auth_token', ${JSON.stringify(token)});` : ''}
@@ -53,7 +70,7 @@ export default function RecordScreen({ route, navigation }) {
   return (
     <View style={s.root}>
       <WebView
-        source={{ uri: url }}
+        source={{ uri: portalUrl }}
         style={s.web}
         injectedJavaScriptBeforeContentLoaded={injectBefore}
         sharedCookiesEnabled
